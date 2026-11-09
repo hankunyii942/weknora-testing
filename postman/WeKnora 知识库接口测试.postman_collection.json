@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "1da148de-7999-440d-829c-3cebdce09f78",
+    "name": "WeKnora 知识库接口测试",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58857116",
+    "_collection_link": "https://go.postman.co/collection/58857116-1da148de-7999-440d-829c-3cebdce09f78?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "A01 查询知识库列表",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"状态码为 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"success 为 true\", function () {\r\n    const body = pm.response.json();\r\n    pm.expect(body.success).to.eql(true);\r\n});\r\n\r\npm.test(\"返回的 data 是数组\", function () {\r\n    const body = pm.response.json();\r\n    pm.expect(body.data).to.be.an(\"array\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/knowledge-bases",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "knowledge-bases"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "A02 创建知识库",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();\r\n\r\npm.test(\"状态码为 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"success 为 true\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n});\r\n\r\npm.test(\"返回的名称包含 Postman测试库\", function () {\r\n    pm.expect(body.data.name).to.include(\"Postman测试库\");\r\n});\r\n\r\npm.collectionVariables.set(\"kb_id\", body.data.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Postman测试库-{{$timestamp}}\",\r\n    \"description\": \"Postman 自动化测试创建\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/knowledge-bases",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "knowledge-bases"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "A03 名称为空",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();\r\n\r\npm.test(\"状态码为 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"success 为 false\", function () {\r\n    pm.expect(body.success).to.eql(false);\r\n});\r\n\r\npm.test(\"错误信息提示名称不能为空\", function () {\r\n    pm.expect(body.error.message).to.eql(\"name cannot be empty\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"\",\r\n    \"description\": \"名称为空测试\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/knowledge-bases",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "knowledge-bases"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "A04 不带Token返回401",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();\r\n\r\npm.test(\"状态码为 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"错误信息包含 Unauthorized\", function () {\r\n    pm.expect(body.error).to.include(\"Unauthorized\");\r\n});\r\n\r\npm.test(\"没有返回知识库数据\", function () {\r\n    pm.expect(body).to.not.have.property(\"data\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "disabled": true
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/knowledge-bases",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "knowledge-bases"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "A05 删除知识库",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();\r\n\r\npm.test(\"状态码为 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"success 为 true\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n});\r\n\r\npm.test(\"提示删除成功\", function () {\r\n    pm.expect(body.message).to.include(\"deleted successfully\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/knowledge-bases/{{kb_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "knowledge-bases",
+            "{{kb_id}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "kb_id",
+      "value": ""
+    }
+  ]
+}
